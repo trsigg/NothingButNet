@@ -1,7 +1,8 @@
-#pragma config(Sensor, dgtl1,  Flywheel, sensorQuadEncoder)
+#pragma config(Sensor, dgtl1,  Flywheel,       sensorQuadEncoder)
 #pragma config(Sensor, dgtl3,  rightEncoder,   sensorQuadEncoder)
 #pragma config(Sensor, dgtl5,  leftEncoder,    sensorQuadEncoder)
-#pragma config(Motor,  port1,           ce,            tmotorVex393_HBridge, openLoop)//6 motor launch
+#pragma config(Sensor, dgtl11, FlyLooker,      sensorTouch)
+#pragma config(Motor,  port1,           ce,            tmotorVex393_HBridge, openLoop)
 #pragma config(Motor,  port2,           rb,            tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port3,           er,            tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port4,           us,            tmotorVex393_MC29, openLoop)
@@ -27,14 +28,14 @@ int TargetSpeed;
 int PrevError;
 int setpower;
 int Flypower = 0;
-float Kps[5] = {0, 2.4, 56, 2.4, 2.4};
-float Kis[5] = {0, 0.001, 0.01, 0.001, 0.001};
-float Kds[5] = {0, 2.5, 70, 2.5, 2.5};
-int TargetSpeeds[5] = {0, 205, 245, 183, 191};//Off, Skillz, Long, 1st, 2nd
-int setpowers[5] = {0, 70, 100, 64, 68};
-int repeaters[5] = {127, 127, 90, 127, 127};
+float Kps[4] = {0, 2.4, 56, 2.6};
+float Kis[4] = {0, 0.001, 0.01, 0.001};
+float Kds[4] = {0, 2.5, 70, 1.5};
+int TargetSpeeds[4] = {0, 205, 245, 183};//Off, Skillz, Long, 1st
+int setpowers[4] = {0, 70, 100, 64};
+int repeaters[4] = {127, 127, 90, 127};
 int repeater = 127;
-TVexJoysticks buttons[5] = {Btn8D, Btn7U, Btn7R, Btn7D, Btn7L};
+TVexJoysticks buttons[4] = {Btn8D, Btn7R, Btn7D, Btn7U};
 int n = 0;
 float Kerror = 0;
 float Kintegral = 0;
@@ -43,6 +44,8 @@ int PIDLoop = 0;
 float AvgError = 0;
 int Overshoot;
 int SecondInt = 0;
+int Liftpower = 127;
+int ToggleLift = 0;
 
 
 //Competition Control and Duration Settings
@@ -143,7 +146,7 @@ task usercontrol()
 	startTask(motorcontrol);
 	while(1)
 	{
-		Flypower = (sgn(power) > 0 ? power : 0 );
+		Flypower = (setpower > 0 ? power : Liftpower*ToggleLift);
 		motor[FeedMe] = vexRT[Btn6U]*127 + vexRT[Btn6D]*-127;
 		motor[seymore] = vexRT[Btn5U]*repeater + vexRT[Btn5D]*-repeater;
 		motor[ce] = Flypower;
@@ -154,7 +157,7 @@ task usercontrol()
 		motor[FLeft] = vexRT[Ch3];
 		motor[BRight] = vexRT[Ch2];
 		motor[FRight] = vexRT[Ch2];
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			n = (vexRT[buttons[i]] == 1 ? i : n);
 		}
@@ -165,5 +168,10 @@ task usercontrol()
 		TargetSpeed = TargetSpeeds[n];
 		setpower = setpowers[n];
 		Integral = vexRT[Btn8D] == 1 ? 0 : Integral;
+		if(vexRT[Btn8L] == 1)
+		{
+			ToggleLift = (ToggleLift ? 0 : 1);
+			waitUntil(vexRT[Btn8L] == 0);
+		}
 	}
 }
