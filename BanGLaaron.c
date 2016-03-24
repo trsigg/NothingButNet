@@ -75,11 +75,11 @@ task Flywheel()
 		SensorValue[FlyWheel] = 0;
 		wait1Msec(15);
 		Error = TargetSpeed[n] - abs(SensorValue[FlyWheel]);
-		KpError = Kp*Error;
+		KpError = Kp[n]*Error;
 		Integral += (Error + PrevError)/2;
-		KiIntegral = Ki*Integral;
+		KiIntegral = Ki[n]*Integral;
 		DeltaE = PrevError - Error;
-		KdDeltaE = Kd*DeltaE;
+		KdDeltaE = Kd[n]*DeltaE;
 		PIDPower = KpError + KiIntegral + KdDeltaE;
 		PowerLevel = 8100/nImmediateBatteryLevel;
 		AdjPID = PowerLevel*PIDPower;
