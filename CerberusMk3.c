@@ -30,7 +30,7 @@ int SeymoreSpeed = 0;
 int n = 0;
 TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 	//PID Control
-int TargetSpeed[4] = {0, 332, 350, 440}; //E Team
+int TargetSpeed[4] = {0, 332, 340, 433}; //E Team
 //int TargetSpeed[4] = {0, 342, 355, 415}; //X Team
 //int TargetSpeed[4] = {0, 350, 388, 465}; //G Team
 //int TargetSpeed[4] = {0, 175, 155, 190}; //W Team
@@ -45,9 +45,7 @@ int DeltaE = 0;//DeltaError stuff
 float Kd[4] = {0, 0.69, 0.63, 0.36};//E Team
 float KdDeltaE = 0;
 int PrevError = 0;
-float Kb[4] = {0, 0.0000015, 0.0000020, 0.0000013};//Battery Stuff
-int stillspeed[4] = {0, 25, 15, 20};
-float KbBattery = 0;
+int stillspeed[4] = {0, 25, 30, 45};
 int PIDPower = 0;//PdBang Selection
 int AccError[4]  = {-1, -1, 7, 10};
 float ErrorMargarine[4] = {1.0,1.0,1.0,1.0}/*{0, 0.17, 0.05, 0.02}*/;
@@ -66,13 +64,13 @@ bool SecondToggle = false;
 void pre_auton()
 {
 	bStopTasksBetweenModes = true;
-	/*SensorType[Yaw] = sensorNone;
+	SensorType[Yaw] = sensorNone;
 	for(int i = 0; i<2000; i++)
 	{
 		cumBias += SensorValue[Yaw];
 	}
 	SensorType[Yaw] = sensorGyro;
-	SensorBias[Yaw] = cumBias/2000;*/
+	SensorBias[Yaw] = cumBias/2000;
 }
 
 void Motorspeeds()
@@ -395,8 +393,8 @@ task hoardingAuto() {
 task classicAuto() {
 	n = 3;
 	//fire four initial preloads
-	//fire(4);
-	//while (firing) { EndTimeSlice(); }
+	fire(4);
+	while (firing) { EndTimeSlice(); }
 
 	n = 2;
 	turn(16); //turn toward first stack
@@ -405,14 +403,14 @@ task classicAuto() {
 
 	turn(-16); //turn toward net
 	driveStraight(1150); //drive toward net
-	//fire();
+	fire();
 	while (firing) { EndTimeSlice(); }
 
 	//pick up second stack
 	driveStraight(950); //drive into net for realignment
 	driveStraight(-750); //move back
 	//fire second stack
-	//fire();
+	fire();
 	while (firing) { EndTimeSlice(); }
 
 	turn(-65); //turn toward third stack
@@ -449,5 +447,11 @@ task autonomous() {
 	startTask(classicAuto);
 	//startTask(pskillz);
 
-	while (true) { EndTimeSlice(); }
+	while (true) {
+		motor[Fly1] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];//See Task PIDControl
+		motor[Fly2] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
+		motor[Fly3] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
+		motor[Fly4] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
+		EndTimeSlice();
+	}
 }
