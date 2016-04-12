@@ -1,0 +1,161 @@
+#pragma config(Sensor, in1,    Yaw,           sensorGyro)
+#pragma config(Sensor, in2,    BallFeed,      sensorLineFollower)
+#pragma config(Sensor, in3,    BallLaunch,    sensorLineFollower)
+#pragma config(Sensor, dgtl1,  FlyWheel,      sensorQuadEncoder)
+#pragma config(Sensor, dgtl3,  leftE,         sensorQuadEncoder)
+#pragma config(Sensor, dgtl5,  rightE,        sensorQuadEncoder)
+#pragma config(Motor,  port1,  Seymore,       tmotorVex393_HBridge, openLoop, reversed)
+#pragma config(Motor,  port2,  LeftDrive1,    tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port3,  LeftDrive2,    tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port4,  Fly1,          tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port5,  Fly2,          tmotorVex393_MC29, openLoop, reversed)
+#pragma config(Motor,  port6,  Fly3,          tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port7,  Fly4,          tmotorVex393_MC29, openLoop, reversed)
+#pragma config(Motor,  port8,  RightDrive2,   tmotorVex393_MC29, openLoop, reversed)
+#pragma config(Motor,  port9,  RightDrive1,   tmotorVex393_MC29, openLoop, reversed)
+#pragma config(Motor,  port10, FeedMe,        tmotorVex393_HBridge, openLoop)
+
+#pragma competitionControl(Competition)
+#include "Vex_Competition_Includes.c"
+
+//Variables
+	//Gyro SetUp
+long cumBias = 0;
+	//MotorSpeeds
+int LeftSpeed = 0;
+int RightSpeed = 0;
+int Flyspeed = 0;
+int SeymoreSpeed = 0;
+	//Selection Variables
+int n = 0;
+TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
+	//PID Control
+int TargetSpeed[4] = {0, 332, 350, 440}; //E Team
+//int TargetSpeed[4] = {0, 342, 355, 415}; //X Team
+//int TargetSpeed[4] = {0, 350, 388, 465}; //G Team
+//int TargetSpeed[4] = {0, 175, 155, 190}; //W Team
+//int TargetSpeed[4] = {0, 350, 370, 445}; //C (F) Team
+int Error = 0;//Error stuff
+float Kp[4] = {0, 0.79, 0.56, 0.32};//E Team
+float KpError = 0;
+long Integral[4] = {0, 0, 0, 0};//Integral stuff
+float Ki[4] = {0, 0.002, 0.001, 0.001};//E Team
+float KiIntegral = 0;
+int DeltaE = 0;//DeltaError stuff
+float Kd[4] = {0, 0.69, 0.63, 0.36};//E Team
+float KdDeltaE = 0;
+int PrevError = 0;
+float Kb[4] = {0, 0.0000015, 0.0000020, 0.0000013};//Battery Stuff
+int stillspeed[4] = {0, 25, 15, 20};
+float KbBattery = 0;
+int PIDPower = 0;//PdBang Selection
+int AccError[4]  = {-1, -1, 7, 10};
+float ErrorMargarine[4] = {0, 0.17, 0.05, 0.02};
+int BangBang = 0;
+int PIDBang = 0;
+	//AutomaticSeymore
+int BallThreshold = 3020; //Line
+bool AutoGo = false;
+bool Meter = true;
+bool PossBall = false;
+int BallCount = 0;
+bool BallLoss = false;
+int AutoToggle = 1;
+bool SecondToggle = false;
+
+void pre_auton()
+{
+	bStopTasksBetweenModes = true;
+	SensorType[Yaw] = sensorNone;
+	for(int i = 0; i<2000; i++)
+	{
+		cumBias += SensorValue[Yaw];
+	}
+	SensorType[Yaw] = sensorGyro;
+	SensorBias[Yaw] = cumBias/2000;
+}
+
+void Motorspeeds()
+{
+	motor[LeftDrive1] = vexRT[Btn8L]==0?(LeftSpeed):0;//Single Variable Drive Control
+	motor[LeftDrive2] = vexRT[Btn8L]==0?(LeftSpeed):0;
+	motor[RightDrive1] = RightSpeed;
+	motor[RightDrive2] = RightSpeed;
+	motor[Fly1] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];//See Task PIDControl
+	motor[Fly2] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
+	motor[Fly3] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
+	motor[Fly4] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
+	motor[Seymore] = SeymoreSpeed;//Function MechSeymore
+	motor[FeedMe] = vexRT[Btn6U]*127 + vexRT[Btn6D]*-127;//AOI Logic
+}
+
+void MechSeymore()
+{
+	AutoGo = AutoToggle==1&&SensorValue[BallLaunch]>=BallThreshold&&SensorValue[BallFeed]<BallThreshold&&vexRT[Btn5D]==0&&n==0?true:false;//Check for a ball
+	Meter = SensorValue[BallLaunch]>=BallThreshold||(abs(Error)<=(ErrorMargarine[n]*TargetSpeed[n]))?true:false;
+	BallCount += PossBall==true&&AutoGo==false?1:0;
+	PossBall = AutoGo==true?true:false;
+	BallCount += BallLoss==true&&SensorValue[BallLaunch]>=BallThreshold?-1:0;
+	BallLoss = SensorValue[BallLaunch]>=BallThreshold?false:true;
+	AutoToggle = vexRT[Btn8L]==0&&SecondToggle==true?abs(AutoToggle-1):AutoToggle;
+	SecondToggle = vexRT[Btn8L]==1?true:false;
+	SeymoreSpeed = 100*AutoGo+127*vexRT[Btn5U]*Meter-127*vexRT[Btn5D];//AOI Combination
+}
+
+task PIDControl()
+{
+	while(true)
+	{
+		SensorValue[FlyWheel] = 0;
+		wait1Msec(60);//TimeSample
+		Error = TargetSpeed[n] - SensorValue[FlyWheel];//How much I am wrong
+		KpError = Kp[n]*Error;
+		Integral[n] += (Error + PrevError)/2;//How wrong I've been
+		KiIntegral = Ki[n]*Integral[n];
+		DeltaE = PrevError - Error;//How much less wrong I am
+		KdDeltaE = Kd[n]*DeltaE;
+		PrevError = Error;
+		KbBattery = n==0?0:1/(Kb[n]*nAvgBatteryLevel);//Battery Level
+		PIDPower = KpError + KdDeltaE + KiIntegral + stillspeed[n];//PID Equation
+		BangBang = Error > 0 ? 127 : 0;//KbBattery;//On or Off, Pure Binary
+		PIDBang = abs(Error)>AccError[n] ? BangBang : PIDPower;//Axiom of choice
+		Flyspeed = PIDBang<0?0:PIDBang*(n==0?0:1);//No constant flywheel :(
+	}
+}
+
+task Timer()
+{
+	datalogClear();
+ 	while(true)
+	{
+		if(n!=0)
+		{
+			clearTimer(T1);
+			waitUntil(abs(Error)<AccError[n]);
+			datalogAddValue(0, time1[T1]);
+			waitUntil(abs(Error)>AccError[n]);
+		}
+	}
+}
+
+task autonomous()
+{
+	AutonomousCodePlaceholderForTesting();  // Remove this function call once you have "real" code.
+}
+
+task usercontrol()
+{
+	startTask(PIDControl);
+	startTask(Timer);
+	while(true)
+	{
+		Motorspeeds();
+		MechSeymore();
+		LeftSpeed = abs(vexRT[Ch3])>10?vexRT[Ch3]:0;//Human Control
+		RightSpeed = abs(vexRT[Ch2])>10?vexRT[Ch2]:0;
+		for(int i = 0; i<4; i++)//Human Choice
+		{
+			n = vexRT[buttons[i]] == 1 ? i : n;
+		}
+	}
+}
