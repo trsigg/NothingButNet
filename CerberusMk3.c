@@ -30,9 +30,9 @@ int SeymoreSpeed = 0;
 int n = 0;
 TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 	//PID Control
-int TargetSpeed[4] = {0, 332, 340, 433}; //E Team
+//int TargetSpeed[4] = {0, 332, 340, 433}; //E Team
 //int TargetSpeed[4] = {0, 342, 355, 415}; //X Team
-//int TargetSpeed[4] = {0, 350, 388, 465}; //G Team
+int TargetSpeed[4] = {0, 317, 352, 433}; //G Team
 //int TargetSpeed[4] = {0, 175, 155, 190}; //W Team
 //int TargetSpeed[4] = {0, 350, 370, 445}; //C (F) Team
 int Error = 0;//Error stuff
@@ -46,13 +46,13 @@ float Kd[4] = {0, 0.69, 0.63, 0.36};//E Team
 float KdDeltaE = 0;
 int PrevError = 0;
 int stillspeed[4] = {0, 25, 30, 45};
-int PIDPower = 0;//PdBang Selection
-int AccError[4]  = {-1, -1, 7, 10};
-float ErrorMargarine[4] = {1.0,1.0,1.0,1.0}/*{0, 0.17, 0.05, 0.02}*/;
+int PIDPower = 0;//PidBang Selection
+int AccError[4]  = {-1, 25, 20, 10};
+float ErrorMargarine[4] = {0, 0.17, 0.05, 0.06};
 int BangBang = 0;
 int PIDBang = 0;
 	//AutomaticSeymore
-int BallThreshold = 3020; //Line
+int BallThreshold = 3065; //Line
 bool AutoGo = false;
 bool Meter = true;
 bool PossBall = false;
@@ -113,11 +113,10 @@ task PIDControl()
 		DeltaE = PrevError - Error;//How much less wrong I am
 		KdDeltaE = Kd[n]*DeltaE;
 		PrevError = Error;
-		KbBattery = n==0?0:1/(Kb[n]*nAvgBatteryLevel);//Battery Level
 		PIDPower = KpError + KdDeltaE + KiIntegral + stillspeed[n];//PID Equation
 		BangBang = Error > 0 ? 127 : 0;//KbBattery;//On or Off, Pure Binary
 		PIDBang = abs(Error)>AccError[n] ? BangBang : PIDPower;//Axiom of choice
-		Flyspeed = PIDBang<0?0:PIDBang*(n==0?0:1);//No constant flywheel :(
+	  Flyspeed = PIDBang<0?0:PIDBang*(n==0?0:1);//No constant flywheel :(
 	}
 }
 
@@ -446,8 +445,8 @@ task autonomous() {
 	//startTask(hoardingAuto);
 	startTask(classicAuto);
 	//startTask(pskillz);
-
-	while (true) {
+	
+	while (true) { 
 		motor[Fly1] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];//See Task PIDControl
 		motor[Fly2] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
 		motor[Fly3] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
