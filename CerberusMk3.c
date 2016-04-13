@@ -283,7 +283,7 @@ task fireCounting() {
 	while (true) {
 		while (SensorValue[BallLaunch] > BallThreshold) { EndTimeSlice(); }
 		while (SensorValue[BallLaunch] < BallThreshold) { EndTimeSlice(); }
-		ballsInFeed = limit(ballsInFeed-1, 0, 4);
+		ballsInFeed = limit(ballsInFeed-1, -100, 4);
 		wait1Msec(250);
 	}
 }
@@ -373,21 +373,33 @@ task stationaryAuto() {
 	while (true) { EndTimeSlice(); }
 }
 
+//int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //C team
+int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //E team
+//int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //G team
+//int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //W team
+//int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //X team
+
 task hoardingAuto() {
-	driveStraight(2000); //drive forward
-	turn(-15); //turn
-	driveStraight(-1000, 80); //back up to push first stack into start zone
-	turn(18); //turn toward second stack
+	driveStraight(hoardingConstants[0]); //drive forward
+	turn(hoardingConstants[1]); //turn
+	driveStraight(hoardingConstants[2], hoardingConstants[3]); //back up to push first stack into start zone
+	turn(hoardingConstants[4]); //turn toward second stack
 	n = 1;
-	driveStraight(2300, 750); //pick up second stack
+	driveStraight(hoardingConstants[5], hoardingConstants[6]); //pick up second stack
 	//fire second stack
 	fire();
 	while (firing) { EndTimeSlice(); }
 
-	turn(-65); //turn toward third stack
+	turn(hoardingConstants[7]); //turn toward third stack
 	//pick up third stack
-	driveStraight(1100);
+	driveStraight(hoardingConstants[8]);
 }
+
+//int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //C team
+int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //E team
+//int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //G team
+//int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //W team
+//int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //X team
 
 task classicAuto() {
 	n = 3;
@@ -396,26 +408,32 @@ task classicAuto() {
 	while (firing) { EndTimeSlice(); }
 
 	n = 2;
-	turn(16); //turn toward first stack
+	turn(classicAutoConstants[0]); //turn toward first stack
 	//pick up first stack
-	driveStraight(800);
+	driveStraight(classicAutoConstants[1]);
 
-	turn(-16); //turn toward net
-	driveStraight(1150); //drive toward net
+	turn(classicAutoConstants[2]); //turn toward net
+	driveStraight(classicAutoConstants[3]); //drive toward net
 	fire();
 	while (firing) { EndTimeSlice(); }
 
 	//pick up second stack
-	driveStraight(950); //drive into net for realignment
-	driveStraight(-750); //move back
+	driveStraight(classicAutoConstants[4]); //drive into net for realignment
+	driveStraight(classicAutoConstants[5]); //move back
 	//fire second stack
 	fire();
 	while (firing) { EndTimeSlice(); }
 
-	turn(-65); //turn toward third stack
+	turn(classicAutoConstants[6]); //turn toward third stack
 	//pick up third stack
-	driveStraight(1100);
+	driveStraight(classicAutoConstants[7]);
 }
+
+//int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //C team
+int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //E team
+//int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //G team
+//int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //W team
+//int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //X team
 
 task pskillz() {
 	//start flywheel
@@ -426,11 +444,11 @@ task pskillz() {
 	//wait until first set of preloads are fired
 	while (firing) { EndTimeSlice(); }
 
-	turn(108); //turn toward middle stack
-	driveStraight(2300); //drive across field
-	turn(-15); // turn toward starting tiles
-	driveStraight(1200); //drive across field
-	turn(-60); //turn toward net
+	turn(pskillzConstants[0]); //turn toward middle stack
+	driveStraight(pskillzConstants[1]); //drive across field
+	turn(pskillzConstants[2]); // turn toward starting tiles
+	driveStraight(pskillzConstants[3]); //drive across field
+	turn(pskillzConstants[4]); //turn toward net
 
 	//fire remaining balls
 	fire();
@@ -445,12 +463,12 @@ task autonomous() {
 	//startTask(hoardingAuto);
 	startTask(classicAuto);
 	//startTask(pskillz);
-	
-	while (true) { 
-		motor[Fly1] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];//See Task PIDControl
-		motor[Fly2] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
-		motor[Fly3] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
-		motor[Fly4] = vexRT[Btn8L]==0?(Flyspeed):-vexRT[Ch3];
+
+	while (true) {
+		motor[Fly1] = Flyspeed; //See Task PIDControl
+		motor[Fly2] = Flyspeed;
+		motor[Fly3] = Flyspeed;
+		motor[Fly4] = Flyspeed;
 		EndTimeSlice();
 	}
 }
