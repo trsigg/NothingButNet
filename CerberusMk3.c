@@ -52,7 +52,7 @@ float ErrorMargarine[4] = {0, 0.17, 0.05, 0.06};
 int BangBang = 0;
 int PIDBang = 0;
 	//AutomaticSeymore
-int BallThreshold = 3065; //Line
+int BallThreshold = 3020; //Line
 bool AutoGo = false;
 bool Meter = true;
 bool PossBall = false;
@@ -284,6 +284,7 @@ task fireCounting() {
 		while (SensorValue[BallLaunch] > BallThreshold) { EndTimeSlice(); }
 		while (SensorValue[BallLaunch] < BallThreshold) { EndTimeSlice(); }
 		ballsInFeed = limit(ballsInFeed-1, -100, 4);
+		clearTimer(fireTimer);
 		wait1Msec(250);
 	}
 }
@@ -344,7 +345,7 @@ task fireTask() {
 	startTask(autoFeeding);
 }
 
-void fire(int _ballsToFire_=ballsInFeed, int _timeout_=6000) {
+void fire(int _ballsToFire_=ballsInFeed, int _timeout_=2000) {
 	fireTimeout = _timeout_;
 	ballsToFire = _ballsToFire_;
 
@@ -374,7 +375,7 @@ task stationaryAuto() {
 }
 
 //int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //C team
-int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //E team
+int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -52, 1200 }; //E team
 //int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //G team
 //int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //W team
 //int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //X team
@@ -396,7 +397,7 @@ task hoardingAuto() {
 }
 
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //C team
-int classicAutoConstants[7] = { 800, -23, 1150, 950, -750, -60, 1300 }; //E team
+int classicAutoConstants[8] = { 800, -21, 1150, 950, -750, -42, 1300 }; //E team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //G team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //W team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //X team
