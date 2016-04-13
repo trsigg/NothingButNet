@@ -396,37 +396,31 @@ task hoardingAuto() {
 }
 
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //C team
-int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //E team
+int classicAutoConstants[7] = { 800, -23, 1150, 950, -750, -60, 1300 }; //E team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //G team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //W team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //X team
 
 task classicAuto() {
-	n = 3;
-	//fire four initial preloads
-	fire(4);
-	while (firing) { EndTimeSlice(); }
-
 	n = 2;
-	turn(classicAutoConstants[0]); //turn toward first stack
 	//pick up first stack
-	driveStraight(classicAutoConstants[1]);
+	driveStraight(classicAutoConstants[0]);
 
-	turn(classicAutoConstants[2]); //turn toward net
-	driveStraight(classicAutoConstants[3]); //drive toward net
+	turn(classicAutoConstants[1]); //turn toward net
+	driveStraight(classicAutoConstants[2]); //drive toward net
 	fire();
 	while (firing) { EndTimeSlice(); }
 
 	//pick up second stack
-	driveStraight(classicAutoConstants[4]); //drive into net for realignment
-	driveStraight(classicAutoConstants[5]); //move back
+	driveStraight(classicAutoConstants[3]); //drive into net for realignment
+	driveStraight(classicAutoConstants[4]); //move back
 	//fire second stack
 	fire();
 	while (firing) { EndTimeSlice(); }
 
-	turn(classicAutoConstants[6]); //turn toward third stack
+	turn(classicAutoConstants[5]); //turn toward third stack
 	//pick up third stack
-	driveStraight(classicAutoConstants[7]);
+	driveStraight(classicAutoConstants[6]);
 }
 
 //int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //C team
