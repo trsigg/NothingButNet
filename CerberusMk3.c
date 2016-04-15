@@ -310,7 +310,7 @@ task photoresistor() {
 				EndTimeSlice();
 			}
 
-			ballsInFeed = limit(ballsInFeed+1, 0, 4);
+			ballsInFeed = limit(ballsInFeed+1, 1, 4);
 
 			clearTimer(feedTimer);
 			wait1Msec(50);
@@ -397,37 +397,38 @@ task hoardingAuto() {
 }
 
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //C team
-int classicAutoConstants[8] = { 16, 800, -22, 1150, 950, -750, -48, 1300 }; //E team
+int classicAutoConstants[14] = { 800, -22, 1150, 950, -750, -62, 675, 12, 375, 750, -300, 70, 94, 3250 }; //E team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //G team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //W team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //X team
 
 task classicAuto() {
-	/*n = 3;
-	//fire four initial preloads
-	fire(4);
-	while (firing) { EndTimeSlice(); }*/
-
 	n = 1;
-	//turn(classicAutoConstants[0]); //turn toward first stack
 	//pick up first stack
-	driveStraight(classicAutoConstants[1]);
+	driveStraight(classicAutoConstants[0]);
 
-	turn(classicAutoConstants[2]); //turn toward net
-	driveStraight(classicAutoConstants[3]); //drive toward net
+	turn(classicAutoConstants[1]); //turn toward net
+	driveStraight(classicAutoConstants[2]); //drive toward net
 	fire();
 	while (firing) { EndTimeSlice(); }
 
 	//pick up second stack
-	driveStraight(classicAutoConstants[4]); //drive into net for realignment
-	driveStraight(classicAutoConstants[5]); //move back
+	driveStraight(classicAutoConstants[3]); //drive into net for realignment
+	driveStraight(classicAutoConstants[4]); //move back
 	//fire second stack
 	fire();
 	while (firing) { EndTimeSlice(); }
 
-	turn(classicAutoConstants[6]); //turn toward third stack
-	//pick up third stack
-	driveStraight(classicAutoConstants[7]);
+	turn(classicAutoConstants[5]);
+	driveStraight(classicAutoConstants[6]);
+	turn(classicAutoConstants[7]); //turn toward third stack
+	driveStraight(classicAutoConstants[8], classicAutoConstants[9]); //pick up third stack
+	driveStraight(classicAutoConstants[10]); //drive backward
+	turn(classicAutoConstants[11]); //aim at net
+	fire();
+	while (firing) { EndTimeSlice(); }
+	turn(classicAutoConstants[12]);
+	driveStraight(classicAutoConstants[13]);
 }
 
 //int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //C team
