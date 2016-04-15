@@ -397,7 +397,7 @@ task hoardingAuto() {
 }
 
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //C team
-int classicAutoConstants[14] = { 800, -22, 1150, 950, -750, -62, 675, 12, 375, 750, -300, 70, 94, 3250 }; //E team
+int classicAutoConstants[14] = { 800, -23, 1150, 950, -750, -62, 675, 14, 375, 750, -300, 66, 96, 3250 }; //E team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //G team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //W team
 //int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //X team
@@ -462,8 +462,8 @@ task autonomous() {
 
 	//startTask(skillPointAuto);
 	//startTask(stationaryAuto);
-	//startTask(hoardingAuto);
-	startTask(classicAuto);
+	startTask(hoardingAuto);
+	//startTask(classicAuto);
 	//startTask(pskillz);
 
 	while (true) {
