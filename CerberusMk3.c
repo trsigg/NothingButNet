@@ -396,11 +396,7 @@ task hoardingAuto() {
 	driveStraight(hoardingConstants[8]);
 }
 
-//int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //C team
 int classicAutoConstants[14] = { 800, -23, 1150, 950, -750, -62, 675, 14, 375, 750, -300, 66, 96, 3250 }; //E team
-//int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //G team
-//int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //W team
-//int classicAutoConstants[8] = { 16, 800, -16, 1150, 950, -750, -65, 1100 }; //X team
 
 task classicAuto() {
 	n = 1;
@@ -457,13 +453,18 @@ task pskillz() {
 	while (true) { EndTimeSlice(); }
 }
 
+task aggro() {
+
+}
+
 task autonomous() {
 	initializeTasks(true);
 
 	//startTask(skillPointAuto);
 	//startTask(stationaryAuto);
-	startTask(hoardingAuto);
+	//startTask(hoardingAuto);
 	//startTask(classicAuto);
+	startTask(aggro);
 	//startTask(pskillz);
 
 	while (true) {
