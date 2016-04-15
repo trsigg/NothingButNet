@@ -277,12 +277,13 @@ void driveStraight(int _clicks_, int _delayAtEnd_=250, int _drivePower_=60, bool
 //end driveStraight
 
 //ball counting
+bool firing = false; //also used in fire and autofeeding
 int ballsInFeed; //also used in fire and photoresistor
 
 task fireCounting() {
-	while (true) {
-		while (SensorValue[BallLaunch] > BallThreshold) { EndTimeSlice(); }
-		while (SensorValue[BallLaunch] < BallThreshold) { EndTimeSlice(); }
+	while (firing) {
+		while (SensorValue[BallLaunch] > BallThreshold || motor[Seymore] == 0) { EndTimeSlice(); }
+		while (SensorValue[BallLaunch] < BallThreshold || motor[Seymore] == 0) { EndTimeSlice(); }
 		ballsInFeed = limit(ballsInFeed-1, -100, 4);
 		clearTimer(fireTimer);
 		wait1Msec(250);
@@ -325,7 +326,6 @@ task photoresistor() {
 //end photoresistor
 
 //fire
-bool firing = false; //also used in autofeeding
 int fireTimeout, ballsToFire;
 
 task fireTask() {
