@@ -100,12 +100,12 @@ void pre_auton()
 {
 	bStopTasksBetweenModes = true;
 	SensorType[Yaw] = sensorNone;
-	for(int i = 0; i<2000; i++)
+	for(int i = 0; i<1999; i++)
 	{
 		cumBias += SensorValue[Yaw];
 		wait1Msec(1);
 	}
-	for(int i = 0; i<2000; i++)
+	for(int i = 0; i<17; i++)
 	{
 		ChoiceArray[i] = RedRight||RedLeft?RedAttackChoiceArray[i]:BlueAttackChoiceArray[i];
 		DegreeArray[i] = RedRight||RedLeft?RedAttackDegreeArray[i]:BlueAttackDegreeArray[i];
