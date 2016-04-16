@@ -33,7 +33,8 @@ int SeymoreSpeed = 0;
 int n = 0;
 TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 	//PID Control
-int TargetSpeed[4] = {0, 332, 340, 433};
+int TargetSpeeds[4] = {0, 332, 340, 433};
+int TargetSpeed;
 int Error = 0;//Error stuff
 float Kp[4] = {0, 0.79, 0.56, 0.32};
 float KpError = 0;
@@ -60,16 +61,33 @@ bool BallLoss = false;
 int AutoToggle = 1;
 bool SecondToggle = false;
 
+
+int limit(int input, int min, int max) {
+	if (input <= max && input >= min) {
+		return input;
+	}
+	else {
+		return (input > max ? max : min);
+	}
+}
+
+void setFlywheelRange(int range) {
+	int limitedRange = limit(range, 0, 3);
+
+	n = limitedRange;
+	TargetSpeed = TargetSpeeds[limitedRange];
+}
+
 void pre_auton()
 {
 	bStopTasksBetweenModes = true;
-	SensorType[Yaw] = sensorNone;
+	/*SensorType[Yaw] = sensorNone;
 	for(int i = 0; i<2000; i++)
 	{
 		cumBias += SensorValue[Yaw];
 	}
 	SensorType[Yaw] = sensorGyro;
-	SensorBias[Yaw] = cumBias/2000;
+	SensorBias[Yaw] = cumBias/2000;*/
 }
 
 void Motorspeeds()
@@ -89,7 +107,7 @@ void Motorspeeds()
 void MechSeymore()
 {
 	AutoGo = AutoToggle==1&&SensorValue[BallLaunch]>=BallThreshold&&SensorValue[BallFeed]<BallThreshold&&vexRT[Btn5D]==0&&n==0?true:false;//Check for a ball
-	Meter = SensorValue[BallLaunch]>=BallThreshold||(abs(Error)<=(ErrorMargarine[n]*TargetSpeed[n]))?true:false;
+	Meter = SensorValue[BallLaunch]>=BallThreshold||(abs(Error)<=(ErrorMargarine[n]*TargetSpeed))?true:false;
 	BallCount += PossBall==true&&AutoGo==false?1:0;
 	PossBall = AutoGo==true?true:false;
 	BallCount += BallLoss==true&&SensorValue[BallLaunch]>=BallThreshold?-1:0;
@@ -105,7 +123,7 @@ task PIDControl()
 	{
 		SensorValue[FlyWheel] = 0;
 		wait1Msec(60);//TimeSample
-		Error = TargetSpeed[n] - SensorValue[FlyWheel];//How much I am wrong
+		Error = TargetSpeed - SensorValue[FlyWheel];//How much I am wrong
 		KpError = Kp[n]*Error;
 		Integral[n] += (Error + PrevError)/2;//How wrong I've been
 		KiIntegral = Ki[n]*Integral[n];
@@ -146,7 +164,7 @@ task usercontrol()
 		RightSpeed = abs(vexRT[Ch2])>10?vexRT[Ch2]:0;
 		for(int i = 0; i<4; i++)//Human Choice
 		{
-			n = vexRT[buttons[i]] == 1 ? i : n;
+			if (vexRT[buttons[i]] == 1) setFlywheelRange(i);
 		}
 	}
 }
@@ -159,15 +177,6 @@ task usercontrol()
 #define driveTimer T2
 #define fireTimer T3
 #define feedTimer T4
-
-int limit(int input, int min, int max) {
-	if (input <= max && input >= min) {
-		return input;
-	}
-	else {
-		return (input > max ? max : min);
-	}
-}
 
 void setDrivePower(int left, int right) {
 	motor[RightDrive1] = right;
@@ -328,7 +337,7 @@ task fireTask() {
 	int targetBalls = ballsInFeed - ballsToFire;
 
 	while (ballsInFeed > targetBalls && time1(fireTimer) < fireTimeout) {
-		motor[Seymore] = (abs(Error) < TargetSpeed[n] * ErrorMargarine[n] || SensorValue[BallLaunch] > BallThreshold) ? 127 : 0;
+		motor[Seymore] = (abs(Error) < TargetSpeed * ErrorMargarine[n] || SensorValue[BallLaunch] > BallThreshold) ? 127 : 0;
 		motor[FeedMe] = motor[Seymore];
 		EndTimeSlice();
 	}
@@ -351,7 +360,7 @@ task skillzFiring() {
 	clearTimer(fireTimer);
 
 	while (time1(fireTimer) < 2000) {
-		motor[Seymore] = (abs(Error) < TargetSpeed[n] * ErrorMargarine[n] || SensorValue[BallLaunch] > BallThreshold) ? 127 : 0;
+		motor[Seymore] = (abs(Error) < TargetSpeed * ErrorMargarine[n] || SensorValue[BallLaunch] > BallThreshold) ? 127 : 0;
 		if (SensorValue[BallLaunch] < BallThreshold) clearTimer(fireTimer);
 	}
 	firing = false;
@@ -368,15 +377,8 @@ void initializeTasks(bool autonomous) {
 	startTask(autoFeeding);
 }
 
-task skillPointAuto() {
-	n = 2;
-	wait1Msec(2000);
-	fire(5);
-	while (true) { EndTimeSlice(); }
-}
-
 task stationaryAuto() {
-	n = 3;
+	setFlywheelRange(3);
 	wait1Msec(2000);
 	fire(5);
 	while (true) { EndTimeSlice(); }
@@ -389,7 +391,7 @@ task hoardingAuto() {
 	turn(hoardingConstants[1]); //turn
 	driveStraight(hoardingConstants[2], hoardingConstants[3]); //back up to push first stack into start zone
 	turn(hoardingConstants[4]); //turn toward second stack
-	n = 1;
+	setFlywheelRange(1);
 	driveStraight(hoardingConstants[5], hoardingConstants[6]); //pick up second stack
 	//fire second stack
 	fire();
@@ -400,10 +402,10 @@ task hoardingAuto() {
 	driveStraight(hoardingConstants[8]);
 }
 
-int classicAutoConstants[15] = { 800, -23, 17, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 }; //E team
+int classicAutoConstants[15] = { 800, -23, 18, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 }; //E team
 
 task classicAuto() {
-	n = 1;
+	setFlywheelRange(1);
 	//pick up first stack
 	driveStraight(classicAutoConstants[0]);
 
@@ -435,7 +437,7 @@ int pskillzConstants[5] = { -100, 1900, 20, 1275, 67 };
 
 task pskillz() {
 	//start flywheel
-	n = 2;
+	setFlywheelRange(2);
 
 	wait1Msec(1000);
 	startTask(skillzFiring);
@@ -454,27 +456,28 @@ task pskillz() {
 	while (true) { EndTimeSlice(); }
 }
 
-int aggroConstants[9] = { 800, 34, -16, 600, 17, 18, 1100, -32, 200 };
+int aggroConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
 
 task aggro() {
-	n = 3;
+	setFlywheelRange(3);
+	TargetSpeed = 375;
 	driveStraight(aggroConstants[0]);
-	turn(aggroConstants[1]);
+	turn(right ? aggroConstants[1] : aggroConstants[2]);
 	fire();
 	while (firing) { EndTimeSlice(); }
 
-	n = 2;
-	turn(aggroConstants[2]);
-	driveStraight(aggroConstants[3]);
-	turn(aggroConstants[4]);
+	setFlywheelRange(2);
+	turn(right ? aggroConstants[3] : aggroConstants[4]);
+	driveStraight(aggroConstants[5]);
+	turn(right ? aggroConstants[6] : aggroConstants[7]);
 	fire();
 	while (firing) { EndTimeSlice(); }
 
-	n = 1;
-	turn(aggroConstants[5]);
-	driveStraight(aggroConstants[6]);
-	turn(aggroConstants[7]);
-	driveStraight(aggroConstants[8]);
+	setFlywheelRange(1);
+	turn(right ? aggroConstants[8] : aggroConstants[9]);
+	driveStraight(aggroConstants[10]);
+	turn(right ? aggroConstants[11] : aggroConstants[12]);
+	driveStraight(aggroConstants[13]);
 	fire();
 	while (firing) { EndTimeSlice(); }
 }
