@@ -122,14 +122,14 @@ task PIDControl()
 
 task Timer()
 {
-	datalogClear();
+	//datalogClear();
  	while(true)
 	{
 		if(n!=0)
 		{
 			clearTimer(T1);
 			waitUntil(abs(Error)<AccError[n]);
-			datalogAddValue(0, time1[T1]);
+			//datalogAddValue(0, time1[T1]);
 			waitUntil(abs(Error)>AccError[n]);
 		}
 	}
@@ -351,6 +351,19 @@ void fire(int _ballsToFire_=ballsInFeed, int _timeout_=2000) {
 
 	startTask(fireTask);
 }
+
+task skillzFiring() {
+	stopTask(autoFeeding);
+	firing = true;
+	clearTimer(fireTimer);
+
+	while (time1(fireTimer) < 2000) {
+		motor[Seymore] = (abs(Error) < TargetSpeed[n] * ErrorMargarine[n] || SensorValue[BallLaunch] > BallThreshold) ? 127 : 0;
+		if (SensorValue[BallLaunch] < BallThreshold) clearTimer(fireTimer);
+	}
+	firing = false;
+	startTask(autoFeeding);
+}
 //end fire
 
 void initializeTasks(bool autonomous) {
@@ -374,11 +387,7 @@ task stationaryAuto() {
 	while (true) { EndTimeSlice(); }
 }
 
-//int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //C team
 int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -52, 1200 }; //E team
-//int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //G team
-//int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //W team
-//int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -65, 1100 }; //X team
 
 task hoardingAuto() {
 	driveStraight(hoardingConstants[0]); //drive forward
@@ -427,18 +436,15 @@ task classicAuto() {
 	driveStraight(classicAutoConstants[13]);
 }
 
-//int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //C team
-int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //E team
-//int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //G team
-//int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //W team
-//int pskillzConstants[5] = { 108, 2300, -15, 1200, -60 }; //X team
+int pskillzConstants[5] = { -100, 1900, 20, 1275, 67 };
 
 task pskillz() {
 	//start flywheel
 	n = 2;
 
 	wait1Msec(1000);
-	fire(32);
+	startTask(skillzFiring);
+	wait1Msec(50);
 	//wait until first set of preloads are fired
 	while (firing) { EndTimeSlice(); }
 
@@ -449,12 +455,33 @@ task pskillz() {
 	turn(pskillzConstants[4]); //turn toward net
 
 	//fire remaining balls
-	fire();
+	startTask(skillzFiring);
 	while (true) { EndTimeSlice(); }
 }
 
-task aggro() {
+int aggroConstants[9] = { 800, 34, -16, 600, 17, 18, 1100, -32, 200 };
 
+task aggro() {
+	n = 3;
+	driveStraight(aggroConstants[0]);
+	turn(aggroConstants[1]);
+	fire();
+	while (firing) { EndTimeSlice(); }
+
+	n = 2;
+	turn(aggroConstants[2]);
+	driveStraight(aggroConstants[3]);
+	turn(aggroConstants[4]);
+	fire();
+	while (firing) { EndTimeSlice(); }
+
+	n = 1;
+	turn(aggroConstants[5]);
+	driveStraight(aggroConstants[6]);
+	turn(aggroConstants[7]);
+	driveStraight(aggroConstants[8]);
+	fire();
+	while (firing) { EndTimeSlice(); }
 }
 
 task autonomous() {
@@ -464,8 +491,8 @@ task autonomous() {
 	//startTask(stationaryAuto);
 	//startTask(hoardingAuto);
 	//startTask(classicAuto);
-	startTask(aggro);
-	//startTask(pskillz);
+	//startTask(aggro);
+	startTask(pskillz);
 
 	while (true) {
 		motor[Fly1] = Flyspeed; //See Task PIDControl
