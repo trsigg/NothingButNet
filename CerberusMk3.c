@@ -231,7 +231,7 @@ void driveStraightRuntime() {
 
 	driveStraightError = SensorValue[Yaw];
 
-	slavePower += driveStraightError / coeff;
+	slavePower += driveStraightError * direction / coeff;
 
 	totalClicks += (abs(SensorValue[leftE]) + abs(SensorValue[rightE])) / 2;
 	SensorValue[leftE] = 0;
