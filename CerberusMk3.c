@@ -386,22 +386,21 @@ task stationaryAuto() {
 	stopAllMotors();
 }
 
-int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -52, 1200 }; //E team
-
 task hoardingAuto() {
-	driveStraight(hoardingConstants[0]); //drive forward
-	turn(hoardingConstants[1]); //turn
-	driveStraight(hoardingConstants[2], hoardingConstants[3]); //back up to push first stack into start zone
-	turn(hoardingConstants[4]); //turn toward second stack
-	setFlywheelRange(1);
-	driveStraight(hoardingConstants[5], hoardingConstants[6]); //pick up second stack
-	//fire second stack
+	n = 3;
+	driveStraight(440);
+	turn(-36);
 	fire();
 	while (firing) { EndTimeSlice(); }
 
-	turn(hoardingConstants[7]); //turn toward third stack
-	//pick up third stack
-	driveStraight(hoardingConstants[8]);
+	n = 2;
+	turn(12);
+	driveStraight(350);
+	turn(-17);
+	fire();
+	while (firing) { EndTimeSlice(); }
+	driveStraight(-420);
+	turn(90);
 }
 
 int classicAutoConstants[15] = { 800, -23, 18, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 }; //E team
