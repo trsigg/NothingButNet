@@ -379,9 +379,11 @@ void initializeTasks(bool autonomous) {
 
 task stationaryAuto() {
 	setFlywheelRange(3);
-	wait1Msec(2000);
-	fire(5);
-	while (true) { EndTimeSlice(); }
+	startTask(skillzFiring);
+	while (firing) { EndTimeSlice(); }
+	n = 0;
+	stopTask(autoFeeding);
+	stopAllMotors();
 }
 
 int hoardingConstants[9] = { 2000, -15, -1000, 80, 18, 2300, 750, -52, 1200 }; //E team
