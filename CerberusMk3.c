@@ -328,7 +328,7 @@ task photoresistor() {
 //end photoresistor
 
 //fire
-int fireTimeout, ballsToFire;
+int fireTimeout, initialWait, ballsToFire;
 
 task fireTask() {
 	firing = true;
@@ -354,17 +354,35 @@ void fire(int _ballsToFire_=ballsInFeed, int _timeout_=2000) {
 	startTask(fireTask);
 }
 
-task skillzFiring() {
-	stopTask(autoFeeding);
+task simpleFireTask() {
+	clearTimer(fireTimer);
+	while (time1(fireTimer) < initialWait && SensorValue[BallLaunch] > BallThreshold) { //feed balls to top
+		motor[Seymore] = 127;
+		motor[FeedMe] = 127;
+		EndTimeSlice();
+	}
+
+	clearTimer(fireTimer);
+	while (time1(fireTimer) < fireTimeout) { //fire
+		motor[Seymore] = (abs(Error) < TargetSpeed[n] * ErrorMargarine[n] || SensorValue[BallLaunch] > BallThreshold) ? 127 : 0;
+		motor[FeedMe] = motor[Seymore];
+		if (SensorValue[BallLaunch] < BallThreshold) clearTimer(fireTimer);
+		EndTimeSlice();
+	}
+
+	ballsInFeed = 0;
+	firing = false;
+	startTask(autofeeding);
+}
+
+void simpleFire(int _initialWait_=3000, int _timeout_=1000) {
+	fireTimeout = _timeout_;
+	initialWait = _initialWait_;
 	firing = true;
+	stopTask(autofeeding);
 	clearTimer(fireTimer);
 
-	while (time1(fireTimer) < 2000) {
-		motor[Seymore] = (abs(Error) < TargetSpeed * ErrorMargarine[n] || SensorValue[BallLaunch] > BallThreshold) ? 127 : 0;
-		if (SensorValue[BallLaunch] < BallThreshold) clearTimer(fireTimer);
-	}
-	firing = false;
-	startTask(autoFeeding);
+	startTask(fireTask);
 }
 //end fire
 
@@ -379,7 +397,7 @@ void initializeTasks(bool autonomous) {
 
 task stationaryAuto() {
 	setFlywheelRange(3);
-	startTask(skillzFiring);
+	simpleFire(); //startTask(skillzFiring);
 	while (firing) { EndTimeSlice(); }
 	n = 0;
 	stopTask(autoFeeding);
@@ -390,14 +408,14 @@ task hoardingAuto() {
 	n = 3;
 	driveStraight(440);
 	turn(-36);
-	fire();
+	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
 	n = 2;
 	turn(12);
 	driveStraight(350);
 	turn(-17);
-	fire();
+	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 	driveStraight(-420);
 	turn(90);
@@ -412,14 +430,14 @@ task classicAuto() {
 
 	turn(right ? classicAutoConstants[1] : classicAutoConstants[2]); //turn toward net
 	driveStraight(classicAutoConstants[3]); //drive toward net
-	fire();
+	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
 	//pick up second stack
 	driveStraight(classicAutoConstants[4]); //drive into net for realignment
 	driveStraight(classicAutoConstants[5]); //move back
 	//fire second stack
-	fire();
+	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
 	turn(classicAutoConstants[6]);
@@ -428,7 +446,7 @@ task classicAuto() {
 	driveStraight(classicAutoConstants[9], classicAutoConstants[10]); //pick up third stack
 	driveStraight(classicAutoConstants[11]); //drive backward
 	turn(classicAutoConstants[12]); //aim at net
-	fire();
+	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 	turn(classicAutoConstants[13]);
 	driveStraight(classicAutoConstants[14]);
@@ -441,7 +459,7 @@ task pskillz() {
 	setFlywheelRange(2);
 
 	wait1Msec(1000);
-	startTask(skillzFiring);
+	simpleFire(13000); //startTask(skillzFiring);
 	wait1Msec(50);
 	//wait until first set of preloads are fired
 	while (firing) { EndTimeSlice(); }
@@ -453,7 +471,7 @@ task pskillz() {
 	turn(pskillzConstants[4]); //turn toward net
 
 	//fire remaining balls
-	startTask(skillzFiring);
+	simpleFire(50000); //startTask(skillzFiring);
 	while (true) { EndTimeSlice(); }
 }
 
@@ -464,14 +482,14 @@ task aggro() {
 	TargetSpeed = 375;
 	driveStraight(aggroConstants[0]);
 	turn(right ? aggroConstants[1] : aggroConstants[2]);
-	fire();
+	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
 	setFlywheelRange(2);
 	turn(right ? aggroConstants[3] : aggroConstants[4]);
 	driveStraight(aggroConstants[5]);
 	turn(right ? aggroConstants[6] : aggroConstants[7]);
-	fire();
+	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
 	setFlywheelRange(1);
@@ -479,7 +497,7 @@ task aggro() {
 	driveStraight(aggroConstants[10]);
 	turn(right ? aggroConstants[11] : aggroConstants[12]);
 	driveStraight(aggroConstants[13]);
-	fire();
+	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 }
 
