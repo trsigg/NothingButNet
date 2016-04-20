@@ -33,7 +33,7 @@ int SeymoreSpeed = 0;
 int n = 0;
 TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 	//PID Control
-int TargetSpeeds[4] = {0, 305, 340, 433};
+int TargetSpeeds[4] = {0, 326, 340, 433};
 int TargetSpeed;
 int Error = 0;//Error stuff
 float Kp[4] = {0, 0.79, 0.56, 0.32};
@@ -48,7 +48,7 @@ int PrevError = 0;
 int stillspeed[4] = {0, 25, 30, 45};
 int PIDPower = 0;//PidBang Selection
 int AccError[4]  = {-1, 25, 20, 10};
-float ErrorMargarine[4] = {0, 0.20, 0.05, 0.06};
+float ErrorMargarine[4] = {0, 0.08, 0.05, 0.06};
 int BangBang = 0;
 int PIDBang = 0;
 //AutomaticSeymore
