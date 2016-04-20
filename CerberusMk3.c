@@ -33,7 +33,7 @@ int SeymoreSpeed = 0;
 int n = 0;
 TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 	//PID Control
-int TargetSpeeds[4] = {0, 332, 340, 433};
+int TargetSpeeds[4] = {0, 285, 340, 433};
 int TargetSpeed;
 int Error = 0;//Error stuff
 float Kp[4] = {0, 0.79, 0.56, 0.32};
@@ -48,7 +48,7 @@ int PrevError = 0;
 int stillspeed[4] = {0, 25, 30, 45};
 int PIDPower = 0;//PidBang Selection
 int AccError[4]  = {-1, 25, 20, 10};
-float ErrorMargarine[4] = {0, 0.17, 0.05, 0.06};
+float ErrorMargarine[4] = {0, 0.08, 0.05, 0.06};
 int BangBang = 0;
 int PIDBang = 0;
 //AutomaticSeymore
@@ -364,7 +364,7 @@ task simpleFireTask() {
 
 	clearTimer(fireTimer);
 	while (time1(fireTimer) < fireTimeout) { //fire
-		motor[Seymore] = (abs(Error) < TargetSpeed[n] * ErrorMargarine[n] || SensorValue[BallLaunch] > BallThreshold) ? 127 : 0;
+		motor[Seymore] = (abs(Error) < TargetSpeed * ErrorMargarine[n] || SensorValue[BallLaunch] > BallThreshold) ? 127 : 0;
 		motor[FeedMe] = motor[Seymore];
 		if (SensorValue[BallLaunch] < BallThreshold) clearTimer(fireTimer);
 		EndTimeSlice();
@@ -372,17 +372,17 @@ task simpleFireTask() {
 
 	ballsInFeed = 0;
 	firing = false;
-	startTask(autofeeding);
+	startTask(autoFeeding);
 }
 
 void simpleFire(int _initialWait_=3000, int _timeout_=1000) {
 	fireTimeout = _timeout_;
 	initialWait = _initialWait_;
 	firing = true;
-	stopTask(autofeeding);
+	stopTask(autoFeeding);
 	clearTimer(fireTimer);
 
-	startTask(fireTask);
+	startTask(simpleFireTask);
 }
 //end fire
 
