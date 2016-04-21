@@ -36,19 +36,19 @@ TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 int TargetSpeeds[4] = {0, 326, 340, 433};
 int TargetSpeed;
 int Error = 0;//Error stuff
-float Kp[4] = {0, 0.79, 0.56, 0.32};
+float Kp[4] = {0, 0.79, 0.56, 0.8};
 float KpError = 0;
 long Integral[4] = {0, 0, 0, 0};//Integral stuff
 float Ki[4] = {0, 0.1, 0.05, 0.001};
 float KiIntegral = 0;
 int DeltaE = 0;//DeltaError stuff
-float Kd[4] = {0, 0.69, 0.63, 0.36};
+float Kd[4] = {0, 0.69, 0.63, 0.84};
 float KdDeltaE = 0;
 int PrevError = 0;
 int stillspeed[4] = {0, 25, 30, 45};
 int PIDPower = 0;//PidBang Selection
-int AccError[4]  = {-1, 25, 20, 15};
-float ErrorMargarine[4] = {0, 0.08, 0.08, 0.01};
+int AccError[4]  = {-1, 25, 20, 5};
+float ErrorMargarine[4] = {0, 0.08, 0.08, 0.02};
 int BangBang = 0;
 int PIDBang = 0;
 //AutomaticSeymore
@@ -81,13 +81,13 @@ void setFlywheelRange(int range) {
 void pre_auton()
 {
 	bStopTasksBetweenModes = true;
-	/*SensorType[Yaw] = sensorNone;
+	SensorType[Yaw] = sensorNone;
 	for(int i = 0; i<2000; i++)
 	{
 		cumBias += SensorValue[Yaw];
 	}
 	SensorType[Yaw] = sensorGyro;
-	SensorBias[Yaw] = cumBias/2000;*/
+	SensorBias[Yaw] = cumBias/2000;
 }
 
 void Motorspeeds()
@@ -222,7 +222,7 @@ void turn(float _degreesToTurn_, int _maxTurnSpeed_=50, bool runAsTask=false, in
 //end turn
 
 //driveStraight
-float coeff = 15;
+float coeff = 300;
 bool driveStraightRunning = false;
 int clicks, direction, drivePower, delayAtEnd, driveTimeout, totalClicks, slavePower, driveStraightError;
 
@@ -447,7 +447,7 @@ task hoardingAuto() {
 	while (firing) { EndTimeSlice(); }
 }
 
-int classicAutoConstants[15] = { 800, -23, 18, 900, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 }; //E team
+int classicAutoConstants[15] = { 900, -23, 13, 900, 600, -750, -62, 300, 14, 375, 750, -300, 66, 96, 3250 }; //E team
 
 task classicAuto() {
 	setFlywheelRange(1);
