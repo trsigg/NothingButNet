@@ -36,19 +36,19 @@ TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 int TargetSpeeds[4] = {0, 326, 340, 433};
 int TargetSpeed;
 int Error = 0;//Error stuff
-float Kp[4] = {0, 0.79, 0.56, 0.32};
+float Kp[4] = {0, 0.79, 0.56, 0.45};
 float KpError = 0;
 long Integral[4] = {0, 0, 0, 0};//Integral stuff
-float Ki[4] = {0, 0.002, 0.001, 0.001};
+float Ki[4] = {0, 0.1, 0.05, 0.001};
 float KiIntegral = 0;
 int DeltaE = 0;//DeltaError stuff
-float Kd[4] = {0, 0.69, 0.63, 0.36};
+float Kd[4] = {0, 0.69, 0.63, 0.54};
 float KdDeltaE = 0;
 int PrevError = 0;
 int stillspeed[4] = {0, 25, 30, 45};
 int PIDPower = 0;//PidBang Selection
-int AccError[4]  = {-1, 25, 20, 10};
-float ErrorMargarine[4] = {0, 0.08, 0.05, 0.06};
+int AccError[4]  = {-1, 25, 20, 15};
+float ErrorMargarine[4] = {0, 0.08, 0.08, 0.01};
 int BangBang = 0;
 int PIDBang = 0;
 //AutomaticSeymore
@@ -81,13 +81,13 @@ void setFlywheelRange(int range) {
 void pre_auton()
 {
 	bStopTasksBetweenModes = true;
-	/*SensorType[Yaw] = sensorNone;
+	SensorType[Yaw] = sensorNone;
 	for(int i = 0; i<2000; i++)
 	{
 		cumBias += SensorValue[Yaw];
 	}
 	SensorType[Yaw] = sensorGyro;
-	SensorBias[Yaw] = cumBias/2000;*/
+	SensorBias[Yaw] = cumBias/2000;
 }
 
 void Motorspeeds()
@@ -106,7 +106,7 @@ void Motorspeeds()
 
 void MechSeymore()
 {
-	AutoGo = AutoToggle==1&&SensorValue[BallLaunch]>=BallThreshold&&SensorValue[BallFeed]<BallThreshold&&vexRT[Btn5D]==0&&n==0?true:false;//Check for a ball
+	AutoGo = AutoToggle==1&&SensorValue[BallLaunch]>=BallThreshold&&SensorValue[BallFeed]<BallThreshold&&vexRT[Btn5D]==0?true:false;//Check for a ball
 	Meter = SensorValue[BallLaunch]>=BallThreshold||(abs(Error)<=(ErrorMargarine[n]*TargetSpeed))?true:false;
 	BallCount += PossBall==true&&AutoGo==false?1:0;
 	PossBall = AutoGo==true?true:false;
@@ -447,7 +447,7 @@ task hoardingAuto() {
 	while (firing) { EndTimeSlice(); }
 }
 
-int classicAutoConstants[15] = { 800, -23, 18, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 }; //E team
+int classicAutoConstants[15] = { 800, -23, 18, 900, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 }; //E team
 
 task classicAuto() {
 	setFlywheelRange(1);
@@ -478,7 +478,7 @@ task classicAuto() {
 	driveStraight(classicAutoConstants[14]);
 }
 
-int pskillzConstants[21] = { -100, 1900, 20, 1275, 67, 13, 800, -23, 18, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 };
+int pskillzConstants[21] = { -100, 1900, 26, 800, 68, 30, 800, -23, 18, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 };
 
 task pskillz() {
 	right = true;
@@ -487,7 +487,7 @@ task pskillz() {
 	setFlywheelRange(2);
 
 	wait1Msec(1000);
-	simpleFire(13000); //startTask(skillzFiring);
+	simpleFire(3000, 2000); //startTask(skillzFiring);
 	wait1Msec(50);
 	//wait until first set of preloads are fired
 	while (firing) { EndTimeSlice(); }
@@ -499,8 +499,7 @@ task pskillz() {
 	turn(pskillzConstants[4]); //turn toward net
 
 	//fire remaining balls
-	simpleFire(13000); //startTask(skillzFiring);
-	while (true) { EndTimeSlice(); }
+	simpleFire(/*1*/3000, 2000); //startTask(skillzFiring);
 
 	////////////////////////
 	//END CLASSIC pSKILLZ//
