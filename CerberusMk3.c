@@ -48,7 +48,7 @@ int PrevError = 0;
 int stillspeed[4] = {0, 25, 30, 45};
 int PIDPower = 0;//PidBang Selection
 int AccError[4]  = {-1, 25, 20, 5};
-float ErrorMargarine[4] = {0, 0.08, 0.08, 0.02};
+float ErrorMargarine[4] = {0, 0.08, 0.04, 0.01};
 int BangBang = 0;
 int PIDBang = 0;
 //AutomaticSeymore
@@ -401,7 +401,7 @@ task stationaryAuto() {
 	while (firing) { EndTimeSlice(); }
 	n = 0;
 	stopTask(autoFeeding);
-	stopAllMotors();
+	allMotorsOff();
 }
 
 int hoardingAutoConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
@@ -478,7 +478,7 @@ task classicAuto() {
 	driveStraight(classicAutoConstants[14]);
 }
 
-int pskillzConstants[21] = { -100, 1900, 26, 800, 68, 30, 800, -23, 18, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 };
+int pskillzConstants[21] = { -100, 1900, 26, 800, 59, 30, 800, -23, 18, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 };
 
 task pskillz() {
 	right = true;
@@ -487,7 +487,7 @@ task pskillz() {
 	setFlywheelRange(2);
 
 	wait1Msec(1000);
-	simpleFire(3000, 2000); //startTask(skillzFiring);
+	simpleFire(13000, 2000); //startTask(skillzFiring);
 	wait1Msec(50);
 	//wait until first set of preloads are fired
 	while (firing) { EndTimeSlice(); }
@@ -499,13 +499,14 @@ task pskillz() {
 	turn(pskillzConstants[4]); //turn toward net
 
 	//fire remaining balls
-	simpleFire(/*1*/3000, 2000); //startTask(skillzFiring);
+	simpleFire(13000, 60000); //startTask(skillzFiring);
+	while (firing) { EndTimeSlice(); }
 
 	////////////////////////
 	//END CLASSIC pSKILLZ//
 	///////////////////////
 
-	setFlywheelRange(1);
+	/*setFlywheelRange(1);
 	turn(pskillzConstants[5]);
 	//pick up first stack
 	driveStraight(pskillzConstants[6]);
@@ -531,7 +532,7 @@ task pskillz() {
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 	turn(pskillzConstants[19]);
-	driveStraight(pskillzConstants[20]);
+	driveStraight(pskillzConstants[20]);*/
 }
 
 int aggroConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
