@@ -404,8 +404,11 @@ task stationaryAuto() {
 	stopAllMotors();
 }
 
+int hoardingAutoConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
+
 task hoardingAuto() {
-	n = 3;
+	//Gabe's hoarding
+	/*n = 3;
 	driveStraight(440);
 	turn(-36);
 	simpleFire(); //fire();
@@ -418,7 +421,30 @@ task hoardingAuto() {
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 	driveStraight(-420);
-	turn(90);
+	turn(90);*/
+
+	//modified aggro
+	setFlywheelRange(3);
+	TargetSpeed = 375;
+	driveStraight(hoardingAutoConstants[0]);
+	turn(right ? hoardingAutoConstants[1] : hoardingAutoConstants[2]);
+	simpleFire(); //fire();
+	while (firing) { EndTimeSlice(); }
+
+	setFlywheelRange(2);
+	turn(right ? hoardingAutoConstants[3] : hoardingAutoConstants[4]);
+	driveStraight(hoardingAutoConstants[5]); //increase
+	turn(right ? hoardingAutoConstants[6] : hoardingAutoConstants[7]); //increase
+	simpleFire(); //fire();
+	while (firing) { EndTimeSlice(); }
+
+	setFlywheelRange(1);
+	turn(right ? hoardingAutoConstants[8] : hoardingAutoConstants[9]);
+	driveStraight(hoardingAutoConstants[10]);
+	turn(right ? hoardingAutoConstants[11] : hoardingAutoConstants[12]);
+	driveStraight(hoardingAutoConstants[13]);
+	simpleFire(); //fire();
+	while (firing) { EndTimeSlice(); }
 }
 
 int classicAutoConstants[15] = { 800, -23, 18, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 }; //E team
@@ -452,9 +478,11 @@ task classicAuto() {
 	driveStraight(classicAutoConstants[14]);
 }
 
-int pskillzConstants[5] = { -100, 1900, 20, 1275, 67 };
+int pskillzConstants[21] = { -100, 1900, 20, 1275, 67, 13, 800, -23, 18, 1150, 950, -750, -62, 700, 14, 375, 750, -300, 66, 96, 3250 };
 
 task pskillz() {
+	right = true;
+
 	//start flywheel
 	setFlywheelRange(2);
 
@@ -471,8 +499,40 @@ task pskillz() {
 	turn(pskillzConstants[4]); //turn toward net
 
 	//fire remaining balls
-	simpleFire(50000); //startTask(skillzFiring);
+	simpleFire(13000); //startTask(skillzFiring);
 	while (true) { EndTimeSlice(); }
+
+	////////////////////////
+	//END CLASSIC pSKILLZ//
+	///////////////////////
+
+	setFlywheelRange(1);
+	turn(pskillzConstants[5]);
+	//pick up first stack
+	driveStraight(pskillzConstants[6]);
+
+	turn(right ? pskillzConstants[7] : pskillzConstants[8]); //turn toward net
+	driveStraight(pskillzConstants[9]); //drive toward net
+	simpleFire(); //fire();
+	while (firing) { EndTimeSlice(); }
+
+	//pick up second stack
+	driveStraight(pskillzConstants[10]); //drive into net for realignment
+	driveStraight(pskillzConstants[11]); //move back
+	//fire second stack
+	simpleFire(); //fire();
+	while (firing) { EndTimeSlice(); }
+
+	turn(pskillzConstants[12]);
+	driveStraight(pskillzConstants[13]);
+	turn(pskillzConstants[14]); //turn toward third stack
+	driveStraight(pskillzConstants[15], pskillzConstants[16]); //pick up third stack
+	driveStraight(pskillzConstants[17]); //drive backward
+	turn(pskillzConstants[18]); //aim at net
+	simpleFire(); //fire();
+	while (firing) { EndTimeSlice(); }
+	turn(pskillzConstants[19]);
+	driveStraight(pskillzConstants[20]);
 }
 
 int aggroConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
@@ -480,23 +540,23 @@ int aggroConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 4
 task aggro() {
 	setFlywheelRange(3);
 	TargetSpeed = 375;
-	driveStraight(aggroConstants[0]);
-	turn(right ? aggroConstants[1] : aggroConstants[2]);
+	driveStraight(aggroConstants[0]); //drive toward first stack
+	turn(right ? aggroConstants[1] : aggroConstants[2]); //turn toward net
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
 	setFlywheelRange(2);
-	turn(right ? aggroConstants[3] : aggroConstants[4]);
-	driveStraight(aggroConstants[5]);
-	turn(right ? aggroConstants[6] : aggroConstants[7]);
+	turn(right ? aggroConstants[3] : aggroConstants[4]); //turn toward second stack
+	driveStraight(aggroConstants[5]); //drive toward second stack -- TODO: increase
+	turn(right ? aggroConstants[6] : aggroConstants[7]); //turn toward net
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
 	setFlywheelRange(1);
-	turn(right ? aggroConstants[8] : aggroConstants[9]);
-	driveStraight(aggroConstants[10]);
-	turn(right ? aggroConstants[11] : aggroConstants[12]);
-	driveStraight(aggroConstants[13]);
+	turn(right ? aggroConstants[8] : aggroConstants[9]); //turn toward third stack -- TODO: change stack (probably reverse)
+	driveStraight(aggroConstants[10]); //drive toward third stack
+	turn(right ? aggroConstants[11] : aggroConstants[12]); //turn toward stack/net
+	driveStraight(aggroConstants[13]); //drive toward net
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 }
