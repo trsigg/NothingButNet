@@ -36,13 +36,13 @@ TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 int TargetSpeeds[4] = {0, 326, 340, 433};
 int TargetSpeed;
 int Error = 0;//Error stuff
-float Kp[4] = {0, 0.79, 0.56, 0.45};
+float Kp[4] = {0, 0.79, 0.56, 0.32};
 float KpError = 0;
 long Integral[4] = {0, 0, 0, 0};//Integral stuff
 float Ki[4] = {0, 0.1, 0.05, 0.001};
 float KiIntegral = 0;
 int DeltaE = 0;//DeltaError stuff
-float Kd[4] = {0, 0.69, 0.63, 0.54};
+float Kd[4] = {0, 0.69, 0.63, 0.36};
 float KdDeltaE = 0;
 int PrevError = 0;
 int stillspeed[4] = {0, 25, 30, 45};
@@ -81,13 +81,13 @@ void setFlywheelRange(int range) {
 void pre_auton()
 {
 	bStopTasksBetweenModes = true;
-	SensorType[Yaw] = sensorNone;
+	/*SensorType[Yaw] = sensorNone;
 	for(int i = 0; i<2000; i++)
 	{
 		cumBias += SensorValue[Yaw];
 	}
 	SensorType[Yaw] = sensorGyro;
-	SensorBias[Yaw] = cumBias/2000;
+	SensorBias[Yaw] = cumBias/2000;*/
 }
 
 void Motorspeeds()
