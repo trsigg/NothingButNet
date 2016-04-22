@@ -33,13 +33,13 @@ int SeymoreSpeed = 0;
 int n = 0;
 TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 	//PID Control
-int TargetSpeeds[4] = {0, 326, 340, 433};
+int TargetSpeeds[4] = {0, 275, 310, 390};
 int TargetSpeed;
 int Error = 0;//Error stuff
 float Kp[4] = {0, 0.79, 0.56, 0.8};
 float KpError = 0;
 long Integral[4] = {0, 0, 0, 0};//Integral stuff
-float Ki[4] = {0, 0.1, 0.05, 0.001};
+float Ki[4] = {0, 0.13, 0.07, 0.004};
 float KiIntegral = 0;
 int DeltaE = 0;//DeltaError stuff
 float Kd[4] = {0, 0.69, 0.63, 0.84};
@@ -47,8 +47,8 @@ float KdDeltaE = 0;
 int PrevError = 0;
 int stillspeed[4] = {0, 25, 30, 45};
 int PIDPower = 0;//PidBang Selection
-int AccError[4]  = {-1, 25, 20, 5};
-float ErrorMargarine[4] = {0, 0.08, 0.04, 0.01};
+int AccError[4]  = {-1, 30, 25, 10};
+float ErrorMargarine[4] = {0, 0.08, 0.04, 0.04};
 int BangBang = 0;
 int PIDBang = 0;
 //AutomaticSeymore
@@ -165,6 +165,15 @@ task usercontrol()
 		for(int i = 0; i<4; i++)//Human Choice
 		{
 			if (vexRT[buttons[i]] == 1) setFlywheelRange(i);
+		}
+
+		if (vexRT[Btn8R] == 1) {
+			TargetSpeed -= 5;
+			while (vexRT[Btn8R] == 1) { EndTimeSlice(); }
+		}
+		else if (vexRT[Btn8U] == 1) {
+			TargetSpeed += 5;
+			while (vexRT[Btn8U] == 1) { EndTimeSlice(); }
 		}
 	}
 }
@@ -404,6 +413,7 @@ task stationaryAuto() {
 	allMotorsOff();
 }
 
+//int hoardingAutoConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
 int hoardingAutoConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
 
 task hoardingAuto() {
@@ -424,7 +434,7 @@ task hoardingAuto() {
 	turn(90);*/
 
 	//modified aggro
-	setFlywheelRange(3);
+	/*setFlywheelRange(3);
 	TargetSpeed = 375;
 	driveStraight(hoardingAutoConstants[0]);
 	turn(right ? hoardingAutoConstants[1] : hoardingAutoConstants[2]);
@@ -444,7 +454,29 @@ task hoardingAuto() {
 	turn(right ? hoardingAutoConstants[11] : hoardingAutoConstants[12]);
 	driveStraight(hoardingAutoConstants[13]);
 	simpleFire(); //fire();
+	while (firing) { EndTimeSlice(); }*/
+
+	setFlywheelRange(3);
+	TargetSpeed = 340;
+	driveStraight(hoardingAutoConstants[0]); //drive toward first stack
+	turn(right ? hoardingAutoConstants[1] : hoardingAutoConstants[2]); //turn toward net
+	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
+
+	setFlywheelRange(2);
+	turn(right ? hoardingAutoConstants[3] : hoardingAutoConstants[4]); //turn toward second stack
+	driveStraight(hoardingAutoConstants[5]); //drive toward second stack -- TODO: increase
+	turn(right ? hoardingAutoConstants[6] : hoardingAutoConstants[7]); //turn toward net
+	simpleFire(); //fire();
+	while (firing) { EndTimeSlice(); }
+
+	/*setFlywheelRange(1);
+	turn(right ? hoardingAutoConstants[8] : hoardingAutoConstants[9]); //turn toward third stack -- TODO: change stack (probably reverse)
+	driveStraight(hoardingAutoConstants[10]); //drive toward third stack
+	turn(right ? hoardingAutoConstants[11] : hoardingAutoConstants[12]); //turn toward stack/net
+	driveStraight(hoardingAutoConstants[13]); //drive toward net
+	simpleFire(); //fire();
+	while (firing) { EndTimeSlice(); }*/
 }
 
 int classicAutoConstants[15] = { 900, -23, 13, 900, 600, -750, -62, 300, 14, 375, 750, -300, 66, 96, 3250 }; //E team
@@ -539,7 +571,7 @@ int aggroConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 4
 
 task aggro() {
 	setFlywheelRange(3);
-	TargetSpeed = 375;
+	TargetSpeed = 340;
 	driveStraight(aggroConstants[0]); //drive toward first stack
 	turn(right ? aggroConstants[1] : aggroConstants[2]); //turn toward net
 	simpleFire(); //fire();
