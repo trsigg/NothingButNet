@@ -33,7 +33,7 @@ int SeymoreSpeed = 0;
 int n = 0;
 TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 	//PID Control
-int TargetSpeeds[4] = {0, 275, 310, 390};
+int TargetSpeeds[4] = {0, 270, 297, 360};
 int TargetSpeed;
 int Error = 0;//Error stuff
 float Kp[4] = {0, 0.79, 0.56, 0.8};
@@ -48,7 +48,7 @@ int PrevError = 0;
 int stillspeed[4] = {0, 25, 30, 45};
 int PIDPower = 0;//PidBang Selection
 int AccError[4]  = {-1, 30, 25, 10};
-float ErrorMargarine[4] = {0, 0.08, 0.04, 0.04};
+float ErrorMargarine[4] = {0, 0.20, 0.04, 0.04};
 int BangBang = 0;
 int PIDBang = 0;
 //AutomaticSeymore
@@ -106,14 +106,12 @@ void Motorspeeds()
 
 void MechSeymore()
 {
-	AutoGo = AutoToggle==1&&SensorValue[BallLaunch]>=BallThreshold&&SensorValue[BallFeed]<BallThreshold&&vexRT[Btn5D]==0?true:false;//Check for a ball
+	AutoGo = SensorValue[BallLaunch]>=BallThreshold&&SensorValue[BallFeed]<BallThreshold&&vexRT[Btn5D]==0?true:false;//Check for a ball
 	Meter = SensorValue[BallLaunch]>=BallThreshold||(abs(Error)<=(ErrorMargarine[n]*TargetSpeed))?true:false;
 	BallCount += PossBall==true&&AutoGo==false?1:0;
 	PossBall = AutoGo==true?true:false;
 	BallCount += BallLoss==true&&SensorValue[BallLaunch]>=BallThreshold?-1:0;
 	BallLoss = SensorValue[BallLaunch]>=BallThreshold?false:true;
-	AutoToggle = vexRT[Btn8L]==0&&SecondToggle==true?abs(AutoToggle-1):AutoToggle;
-	SecondToggle = vexRT[Btn8L]==1?true:false;
 	SeymoreSpeed = 100*AutoGo+127*vexRT[Btn5U]*Meter-127*vexRT[Btn5D];//AOI Combination
 }
 
@@ -567,7 +565,7 @@ task pskillz() {
 	driveStraight(pskillzConstants[20]);*/
 }
 
-int aggroConstants[14] = { 800, -31, 31, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
+int aggroConstants[14] = { 800, -34, 34, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
 
 task aggro() {
 	setFlywheelRange(3);
