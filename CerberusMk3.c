@@ -477,7 +477,7 @@ task hoardingAuto() {
 	while (firing) { EndTimeSlice(); }*/
 }
 
-int classicAutoConstants[15] = { 900, -23, 13, 900, 600, -750, -62, 300, 14, 375, 750, -300, 66, 96, 3250 }; //E team
+int classicAutoConstants[15] = { 900, -19, 17, 900, 600, -750, -62, 300, 14, 375, 750, -300, 66, 96, 3250 }; //E team
 
 task classicAuto() {
 	setFlywheelRange(1);
@@ -529,14 +529,14 @@ task pskillz() {
 	turn(pskillzConstants[4]); //turn toward net
 
 	//fire remaining balls
-	simpleFire(13000, 60000); //startTask(skillzFiring);
+	simpleFire(13000, 2000); //startTask(skillzFiring);
 	while (firing) { EndTimeSlice(); }
 
 	////////////////////////
 	//END CLASSIC pSKILLZ//
 	///////////////////////
 
-	/*setFlywheelRange(1);
+	setFlywheelRange(1);
 	turn(pskillzConstants[5]);
 	//pick up first stack
 	driveStraight(pskillzConstants[6]);
@@ -562,7 +562,7 @@ task pskillz() {
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 	turn(pskillzConstants[19]);
-	driveStraight(pskillzConstants[20]);*/
+	driveStraight(pskillzConstants[20]);
 }
 
 int aggroConstants[14] = { 800, -34, 34, 16, -16, 600, -19, 19, -18, 18, 1100, 40, -40, 25 };
