@@ -195,6 +195,7 @@ void setDrivePower(int left, int right) {
 //turn
 float degreesToTurn;
 int maxTurnSpeed, waitAtEnd;
+bool turning=false;
 
 void turnEnd() {
 	setDrivePower(sgn(degreesToTurn) * 10, -sgn(degreesToTurn) * 10);
@@ -203,6 +204,7 @@ void turnEnd() {
 	setDrivePower(0, 0);
 
 	if (waitAtEnd > 250) wait1Msec(waitAtEnd - 250); //wait at end
+	turning = false;
 }
 
 task turnTask() {
@@ -210,10 +212,11 @@ task turnTask() {
 	turnEnd();
 }
 
-void turn(float _degreesToTurn_, int _maxTurnSpeed_=50, bool runAsTask=false, int _waitAtEnd_=250) {
+void turn(float _degreesToTurn_, bool runAsTask=false, int _maxTurnSpeed_=50, int _waitAtEnd_=250) {
 	degreesToTurn = _degreesToTurn_;
 	maxTurnSpeed = _maxTurnSpeed_;
 	waitAtEnd = _waitAtEnd_;
+	turning = true;
 
 	SensorValue[Yaw] = 0; //clear the gyro
 	setDrivePower(-sgn(degreesToTurn) * maxTurnSpeed, sgn(degreesToTurn) * maxTurnSpeed); //begin turn
@@ -260,13 +263,14 @@ task driveStraightTask() {
 	driveStraightEnd();
 }
 
-void driveStraight(int _clicks_, int _delayAtEnd_=250, int _drivePower_=60, bool startAsTask=false, int _timeout_=15000) {
+void driveStraight(int _clicks_, bool startAsTask=false, int _delayAtEnd_=250, int _drivePower_=60, int _timeout_=15000) {
 	//initialize global variables
 	clicks = abs(_clicks_);
 	direction = sgn(_clicks_);
 	drivePower = _drivePower_;
 	delayAtEnd = _delayAtEnd_;
 	driveTimeout = _timeout_;
+	driveStraightRunning = true;
 
 	totalClicks = 0;
 	slavePower = drivePower - 5;
@@ -428,14 +432,17 @@ task classicAuto() {
 	//pick up first stack
 	driveStraight(classicAutoConstants[0]);
 
-	turn(right ? classicAutoConstants[1] : classicAutoConstants[2]); //turn toward net
-	driveStraight(classicAutoConstants[3]); //drive toward net
+	turn(right ? classicAutoConstants[1] : classicAutoConstants[2], true); //turn toward net
+	while (turning) { EndTimeSlice(); }
+	driveStraight(classicAutoConstants[3], true); //drive toward net
+	while (driveStraightRunning) { EndTimeSlice(); }
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
 	//pick up second stack
 	driveStraight(classicAutoConstants[4]); //drive into net for realignment
-	driveStraight(classicAutoConstants[5]); //move back
+	driveStraight(classicAutoConstants[5], true); //move back
+	while (driveStraightRunning) { EndTimeSlice(); }
 	//fire second stack
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
@@ -445,7 +452,8 @@ task classicAuto() {
 	turn(classicAutoConstants[8]); //turn toward third stack
 	driveStraight(classicAutoConstants[9], classicAutoConstants[10]); //pick up third stack
 	driveStraight(classicAutoConstants[11]); //drive backward
-	turn(classicAutoConstants[12]); //aim at net
+	turn(classicAutoConstants[12], true); //aim at net
+	while (turning) { EndTimeSlice(); }
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 	turn(classicAutoConstants[13]);
@@ -515,14 +523,16 @@ task aggro() {
 	setFlywheelRange(3);
 	TargetSpeed = 335;
 	driveStraight(aggroConstants[0]); //drive toward first stack
-	turn(right ? aggroConstants[1] : aggroConstants[2]); //turn toward net
+	turn(right ? aggroConstants[1] : aggroConstants[2], true); //turn toward net
+	while (turning) { EndTimeSlice(); }
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
 	setFlywheelRange(2);
 	turn(right ? aggroConstants[3] : aggroConstants[4]); //turn toward second stack
 	driveStraight(aggroConstants[5]); //drive toward second stack -- TODO: increase
-	turn(right ? aggroConstants[6] : aggroConstants[7]); //turn toward net
+	turn(right ? aggroConstants[6] : aggroConstants[7], true); //turn toward net
+	while (turning) { EndTimeSlice(); }
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 
@@ -530,7 +540,8 @@ task aggro() {
 	turn(right ? aggroConstants[8] : aggroConstants[9]); //turn toward third stack -- TODO: change stack (probably reverse)
 	driveStraight(aggroConstants[10]); //drive toward third stack
 	turn(right ? aggroConstants[11] : aggroConstants[12]); //turn toward stack/net
-	driveStraight(aggroConstants[13]); //drive toward net
+	driveStraight(aggroConstants[13], true); //drive toward net
+	while (driveStraightRunning) { EndTimeSlice(); }
 	simpleFire(); //fire();
 	while (firing) { EndTimeSlice(); }
 }
