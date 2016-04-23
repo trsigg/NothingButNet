@@ -33,7 +33,7 @@ int SeymoreSpeed = 0;
 int n = 0;
 TVexJoysticks buttons[4] = {Btn8D, Btn7U, Btn7R, Btn7D};
 	//PID Control
-int TargetSpeeds[4] = {0, 270, 297, 365};
+int TargetSpeeds[4] = {0, 268, 297, 361};
 int TargetSpeed;
 int Error = 0;//Error stuff
 float Kp[4] = {0, 0.79, 0.56, 0.8};
@@ -513,7 +513,7 @@ int aggroConstants[14] = { 800, -34, 34, 14, -16, 600, -19, 19, -18, 18, 1100, 4
 
 task aggro() {
 	setFlywheelRange(3);
-	TargetSpeed = 340;
+	TargetSpeed = 335;
 	driveStraight(aggroConstants[0]); //drive toward first stack
 	turn(right ? aggroConstants[1] : aggroConstants[2]); //turn toward net
 	simpleFire(); //fire();
