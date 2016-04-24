@@ -549,25 +549,27 @@ task aggro() {
 task autonomous() {
 	initializeTasks(true);
 
-	right = SensorValue[sidePot] < 1000;
+	right = true;
+	startTask(aggro);
+	//right = SensorValue[sidePot] < 1000;
 
-	if (SensorValue[sidePot] > 1000 && SensorValue[sidePot] < 2800) {
-		startTask(pskillz);
-	}
-	else {
-		if (SensorValue[modePot] < 545) {
-			startTask(aggro);
-		}
-		else if (SensorValue[modePot] < 1885) {
-			startTask(classicAuto);
-		}
-		else if (SensorValue[modePot] < 3415) {
-			startTask(hoardingAuto);
-		}
-		else {
-			startTask(stationaryAuto);
-		}
-	}
+	//if (SensorValue[sidePot] > 1000 && SensorValue[sidePot] < 2800) {
+	//	startTask(pskillz);
+	//}
+	//else {
+	//	if (SensorValue[modePot] < 545) {
+	//		startTask(aggro);
+	//	}
+	//	else if (SensorValue[modePot] < 1885) {
+	//		startTask(classicAuto);
+	//	}
+	//	else if (SensorValue[modePot] < 3415) {
+	//		startTask(hoardingAuto);
+	//	}
+	//	else {
+	//		startTask(stationaryAuto);
+	//	}
+	//}
 
 	while (true) {
 		motor[Fly1] = Flyspeed; //See Task PIDControl
